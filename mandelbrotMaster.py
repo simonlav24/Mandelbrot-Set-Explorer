@@ -17,7 +17,7 @@ win = pygame.display.set_mode((winWidth,winHeight))
 pygame.display.set_caption('Simon\'s graph')
 
 pygame.font.init()
-myFont = pygame.font.Font("fonts\pixelFont.ttf", 12)
+myFont =  pygame.font.SysFont('Tahoma', 12, True)
 
 scaleFactor = 200
 ################################################################################ transformations
@@ -105,8 +105,8 @@ dims = win.get_size()
 
 winDims = True
 
-image = pygame.image.load("assets/karim.png")
-image = pygame.transform.flip(image, False, True)
+# image = pygame.image.load("assets/karim.png")
+# image = pygame.transform.flip(image, False, True)
 
 out = 4
 move = -180
