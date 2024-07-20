@@ -1,28 +1,17 @@
 
 
-import os
-from datetime import datetime
 import numpy as np
 import pygame
+from timeit import default_timer as timer
 
 from Calculations import *
+from Render import *
 
 WIN_WIDTH = 1280
 WIN_HEIGHT = 720
 WIN_RATIO = WIN_HEIGHT / WIN_WIDTH
 
-OUTPUT_PATH = 'Output'
-
 render_size = (1920*2, 1080*2)
-
-def save_image(surf: pygame.Surface):
-    if not os.path.isdir(OUTPUT_PATH):
-        os.mkdir(OUTPUT_PATH)
-    now = datetime.now()
-    dt_string = now.strftime("%d-%m-%Y %H-%M-%S")
-    path = os.path.join(OUTPUT_PATH, f'{dt_string}.png')
-    print(f'Image saved: {path}')
-    pygame.image.save(surf, path)
 
 class Grid:
     def __init__(self):
@@ -183,6 +172,7 @@ def main():
             grid.draw(win)
         
         elif state == STATE_RENDER:
+            time_start = timer()
             if not render_finished:
                 for y in range(0, WIN_HEIGHT):
                     for x in range(0, WIN_WIDTH):
@@ -195,30 +185,23 @@ def main():
                     pygame.display.update()
 
                 render_finished = True
+                time_end = timer()
+                print(f'Render finished elapsed time: {time_end - time_start}')
         
         elif state == STATE_RENDER_FULL:
-            surf = pygame.Surface(render_size)
-            ratio_x = WIN_WIDTH / render_size[0]
-            ratio_y = WIN_HEIGHT / render_size[1]
-            if not render_finished:
-                for y in range(0, render_size[1]):
-                    for x in range(0, render_size[0]):
-
-                        pos_in_win = np.array((x * ratio_x, y * ratio_y))
-                        pos_in_world = grid.invert(pos_in_win)
-                        color = drawing.draw(pos_in_world)
-                        surf.set_at((x, y), color)
-                    
-                    pygame.draw.line(surf, (255,255,0), (0, y + 1), (render_size[0], y + 1))
-
-                    win.blit(pygame.transform.smoothscale(surf, (WIN_WIDTH, WIN_HEIGHT)), (0,0))
-                    pygame.display.update()
-
-                save_image(surf)
-                render_finished = True
             
+            time_start = timer()
+            tl = grid.invert(np.array((0, 0)))
+            br = grid.invert(np.array((WIN_WIDTH, WIN_HEIGHT)))
 
-        # win.blit(mandel_surf, (0,0))
+            surf = render_mandelbrot_process(tl, br, drawing, render_size)
+            
+            time_end = timer()
+            print(f'Render finished elapsed time: {time_end - time_start}')
+            save_image(surf)
+            render_finished = True
+            state = STATE_EXPLORE            
+
         pygame.display.update()
 
 

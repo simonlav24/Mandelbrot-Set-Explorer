@@ -1,4 +1,6 @@
 
+import os
+from datetime import datetime
 import numpy as np
 import cmath
 import math
@@ -7,6 +9,20 @@ from typing import Tuple
 import pygame
 
 image = pygame.image.load('Assets/image.png')
+
+OUTPUT_PATH = 'Output'
+
+def save_image(surf: pygame.Surface, elapsed: int=0):
+    if not os.path.isdir(OUTPUT_PATH):
+        os.mkdir(OUTPUT_PATH)
+    now = datetime.now()
+    dt_string = now.strftime("%d-%m-%Y %H-%M-%S")
+    elapsed_str = ''
+    if elapsed != 0:
+        elapsed_str = f'_f{elapsed}'
+    path = os.path.join(OUTPUT_PATH, f'{dt_string}{elapsed_str}.png')
+    print(f'Image saved: {path}')
+    pygame.image.save(surf, path)
 
 def smap(value, a, b, c, d):
 	return (value - a) / (b - a) * (d - c) + c
@@ -62,19 +78,24 @@ def mandel_color(pos: np.ndarray, pos_center: np.ndarray, max_iterations: int=10
     ca = pos_center[0]
     cb = pos_center[1]
     
+
     iteration = 0
     while iteration < max_iterations:
-        aa = a*a - b*b
-        bb = 2*a*b
+        aa = a * a
+        bb = b * b
+        two_ab = 2 * a * b
 
-        a = aa + ca
-        b = bb + cb
+        a = aa - bb + ca
+        b = two_ab + cb
         
+        if aa + bb > 4:
+            break
+
         # if fabs(aa) + fabs(bb) > 4:# asteroids
         # if fabs(aa + bb) > 4:# droplets
-        if a*a + b*b > 4:# circular
+        # if a*a + b*b > 4:# circular
         # if sqrt(a*a + b*b) > out:# circular
-            break
+            # break
         
         iteration += 1
     
